@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ app_name }} - Athletic Training & Nutrition Platform</title>
+    
+    <!-- Preload critical fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/static/css/main.css">
+    
+    <!-- Meta tags for mobile -->
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="description" content="AI-powered athletic training and nutrition platform for triathlon, marathon, and fitness goals.">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">{{ app_name }}</a>
+                <nav class="nav" id="main-nav">
+                    <a href="#dashboard" class="nav-link">Dashboard</a>
+                    <a href="#goals" class="nav-link">Goals</a>
+                    <a href="#training" class="nav-link">Training</a>
+                    <a href="#nutrition" class="nav-link">Nutrition</a>
+                    <a href="#profile" class="nav-link">Profile</a>
+                    <button class="btn btn-primary" id="auth-btn">Login</button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="app">
+        <!-- Loading state -->
+        <div id="loading" class="container text-center" style="padding: 4rem 0;">
+            <div class="spinner" style="width: 40px; height: 40px; margin: 0 auto 1rem;"></div>
+            <p>Loading {{ app_name }}...</p>
+        </div>
+
+        <!-- Authentication Modal -->
+        <div id="auth-modal" class="hidden" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;">
+            <div class="card" style="width: 100%; max-width: 400px; margin: 1rem;">
+                <div class="card-header">
+                    <h3 class="card-title" id="auth-title">Welcome to {{ app_name }}</h3>
+                    <p class="card-subtitle">Sign in to start your athletic journey</p>
+                </div>
+                
+                <!-- Login Form -->
+                <form id="login-form">
+                    <div class="form-group">
+                        <label class="form-label" for="username">Username</label>
+                        <input type="text" id="username" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="password">Password</label>
+                        <input type="password" id="password" class="form-input" required>
+                    </div>
+                    <div class="flex gap-4">
+                        <button type="submit" class="btn btn-primary flex-1">Sign In</button>
+                        <button type="button" class="btn btn-outline flex-1" id="show-register">Register</button>
+                    </div>
+                </form>
+
+                <!-- Register Form -->
+                <form id="register-form" class="hidden">
+                    <div class="form-group">
+                        <label class="form-label" for="reg-email">Email</label>
+                        <input type="email" id="reg-email" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="reg-username">Username</label>
+                        <input type="text" id="reg-username" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="reg-password">Password</label>
+                        <input type="password" id="reg-password" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="reg-name">Full Name</label>
+                        <input type="text" id="reg-name" class="form-input">
+                    </div>
+                    <div class="flex gap-4">
+                        <button type="submit" class="btn btn-primary flex-1">Create Account</button>
+                        <button type="button" class="btn btn-outline flex-1" id="show-login">Back to Login</button>
+                    </div>
+                </form>
+                
+                <button id="close-auth" class="btn btn-sm btn-outline" style="position: absolute; top: 1rem; right: 1rem;">×</button>
+            </div>
+        </div>
+
+        <!-- Dashboard -->
+        <section id="dashboard-section" class="dashboard hidden">
+            <div class="container">
+                <div class="dashboard-header">
+                    <h1>Welcome back, <span id="user-name">Athlete</span>!</h1>
+                    <p class="text-gray-600">Track your progress and achieve your athletic goals</p>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="card stat-card">
+                        <div class="stat-value" id="days-to-goal">--</div>
+                        <div class="stat-label">Days to Goal</div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="stat-value" id="workouts-completed">--</div>
+                        <div class="stat-label">Workouts Completed</div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="stat-value" id="current-phase">--</div>
+                        <div class="stat-label">Current Phase</div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="stat-value" id="progress-percent">--%</div>
+                        <div class="stat-label">Progress</div>
+                    </div>
+                </div>
+
+                <!-- Current Goal -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Current Goal</h3>
+                        </div>
+                        <div id="current-goal">
+                            <p class="text-gray-600">No active goal. <a href="#goals" class="text-primary">Create your first goal!</a></p>
+                        </div>
+                    </div>
+
+                    <!-- Today's Workout -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Today's Workout</h3>
+                        </div>
+                        <div id="todays-workout">
+                            <p class="text-gray-600">No workout scheduled for today.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Goals Section -->
+        <section id="goals-section" class="dashboard hidden">
+            <div class="container">
+                <div class="dashboard-header">
+                    <h1>Athletic Goals</h1>
+                    <p class="text-gray-600">Set and track your training objectives</p>
+                    <button class="btn btn-primary" id="create-goal-btn">Create New Goal</button>
+                </div>
+
+                <div id="goals-list" class="grid gap-6">
+                    <!-- Goals will be loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Goal Creation Form -->
+        <div id="goal-modal" class="hidden" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;">
+            <div class="card" style="width: 100%; max-width: 600px; margin: 1rem; max-height: 90vh; overflow-y: auto;">
+                <div class="card-header">
+                    <h3 class="card-title">Create Your Triathlon Goal</h3>
+                    <p class="card-subtitle">Tell us about your target event and current fitness</p>
+                </div>
+                
+                <form id="goal-form">
+                    <div class="form-group">
+                        <label class="form-label" for="goal-title">Goal Title</label>
+                        <input type="text" id="goal-title" class="form-input" placeholder="e.g., June 2026 Triathlon" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="goal-description">Description</label>
+                        <textarea id="goal-description" class="form-input form-textarea" placeholder="Describe your goal and motivation..."></textarea>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="form-group">
+                            <label class="form-label" for="event-date">Event Date</label>
+                            <input type="date" id="event-date" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="event-location">Event Location</label>
+                            <input type="text" id="event-location" class="form-input" placeholder="City, State">
+                        </div>
+                    </div>
+
+                    <div class="card-header">
+                        <h4>Race Distances</h4>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="form-group">
+                            <label class="form-label" for="swim-distance">Swim (meters)</label>
+                            <input type="number" id="swim-distance" class="form-input" value="750" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="bike-distance">Bike (miles)</label>
+                            <input type="number" id="bike-distance" class="form-input" value="14.3" step="0.1" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="run-distance">Run (miles)</label>
+                            <input type="number" id="run-distance" class="form-input" value="3.1" step="0.1" required>
+                        </div>
+                    </div>
+
+                    <div class="card-header">
+                        <h4>Current Fitness Assessment</h4>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="swim-ability">Swimming Ability</label>
+                        <textarea id="swim-ability" class="form-input" placeholder="e.g., Can swim 200m continuously, comfortable in open water" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="bike-ability">Cycling Ability</label>
+                        <textarea id="bike-ability" class="form-input" placeholder="e.g., Can bike 5 miles at moderate pace, own a road bike" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="run-ability">Running Ability</label>
+                        <textarea id="run-ability" class="form-input" placeholder="e.g., Can run 1.5 miles before needing to walk" required></textarea>
+                    </div>
+                    
+                    <div class="flex gap-4">
+                        <button type="submit" class="btn btn-primary flex-1">Create Goal & Training Plan</button>
+                        <button type="button" class="btn btn-outline" id="close-goal-modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Landing Page for Non-Authenticated Users -->
+        <section id="landing-section" class="dashboard">
+            <div class="container">
+                <div class="dashboard-header">
+                    <h1>{{ app_name }}</h1>
+                    <h2 class="text-xl text-gray-600 mb-8">AI-Powered Athletic Training & Nutrition Platform</h2>
+                    <p class="text-lg mb-8">Transform your fitness journey with personalized training plans, nutrition guidance, and progress tracking designed specifically for your goals.</p>
+                    <button class="btn btn-primary btn-lg" id="get-started-btn">Get Started</button>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="card text-center">
+                        <h3>🏊‍♂️ Swimming</h3>
+                        <p>Progressive swim training with technique focus and endurance building</p>
+                    </div>
+                    <div class="card text-center">
+                        <h3>🚴‍♂️ Cycling</h3>
+                        <p>Structured bike workouts for power, endurance, and race preparation</p>
+                    </div>
+                    <div class="card text-center">
+                        <h3>🏃‍♂️ Running</h3>
+                        <p>Smart run training that builds from your current fitness level</p>
+                    </div>
+                    <div class="card text-center">
+                        <h3>🥗 Nutrition</h3>
+                        <p>Personalized meal plans to fuel your training and recovery</p>
+                    </div>
+                </div>
+
+                <div class="card mt-8">
+                    <h3 class="text-center mb-6">Perfect for Your Triathlon Goal</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="text-center">
+                            <div class="text-2xl mb-2">📅</div>
+                            <h4>Smart Planning</h4>
+                            <p class="text-sm text-gray-600">AI-generated training plans based on your event date and current fitness</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl mb-2">📊</div>
+                            <h4>Progress Tracking</h4>
+                            <p class="text-sm text-gray-600">Monitor your improvement across all three disciplines</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl mb-2">📱</div>
+                            <h4>Mobile Ready</h4>
+                            <p class="text-sm text-gray-600">Access your workouts and plans anywhere, optimized for mobile</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- JavaScript -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

@@ -2,8 +2,11 @@
 AtaraxAi - Main application entry point
 """
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
 
 from app.api.v1.api import api_router
 from app.core.config import settings
@@ -14,7 +17,7 @@ def create_application() -> FastAPI:
     app = FastAPI(
         title=settings.APP_NAME,
         version=settings.APP_VERSION,
-        description="AtaraxAi - AI-powered web application",
+        description="AtaraxAi - Athletic Training & Nutrition Platform",
         openapi_url=f"{settings.API_V1_STR}/openapi.json"
     )
 
@@ -27,6 +30,12 @@ def create_application() -> FastAPI:
         allow_headers=["*"],
     )
 
+    # Mount static files
+    app.mount("/static", StaticFiles(directory="static"), name="static")
+    
+    # Setup templates
+    templates = Jinja2Templates(directory="templates")
+
     # Include API routes
     app.include_router(api_router, prefix=settings.API_V1_STR)
 
@@ -35,10 +44,10 @@ def create_application() -> FastAPI:
         """Initialize database tables on startup."""
         create_tables()
 
-    @app.get("/")
-    async def root():
-        """Root endpoint."""
-        return {"message": f"Welcome to {settings.APP_NAME}!", "version": settings.APP_VERSION}
+    @app.get("/", response_class=HTMLResponse)
+    async def root(request: Request):
+        """Root endpoint - serve main application."""
+        return templates.TemplateResponse("index.html", {"request": request, "app_name": settings.APP_NAME})
 
     @app.get("/health")
     async def health_check():
