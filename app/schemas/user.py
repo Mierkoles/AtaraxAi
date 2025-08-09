@@ -3,13 +3,13 @@ User Pydantic schemas.
 """
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 
 
 # Shared properties
 class UserBase(BaseModel):
     """Base user schema."""
-    email: Optional[EmailStr] = None
+    email: Optional[str] = None
     full_name: Optional[str] = None
     is_active: Optional[bool] = True
     is_superuser: Optional[bool] = False
@@ -18,7 +18,7 @@ class UserBase(BaseModel):
 # Properties to receive via API on creation
 class UserCreate(UserBase):
     """Schema for creating a user."""
-    email: EmailStr
+    email: str
     full_name: Optional[str] = None
 
 
