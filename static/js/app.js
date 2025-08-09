@@ -334,9 +334,12 @@ class AtaraxAiApp {
                 <div class="card text-center">
                     <h3>No Goals Yet</h3>
                     <p class="text-gray-600 mb-4">Create your first athletic goal to get started with personalized training.</p>
-                    <button class="btn btn-primary" onclick="app.showGoalModal()">Create Your First Goal</button>
+                    <button class="btn btn-primary" id="first-goal-btn">Create Your First Goal</button>
                 </div>
             `;
+            
+            // Add event listener for dynamically created button
+            document.getElementById('first-goal-btn').addEventListener('click', () => this.showGoalModal());
             return;
         }
 
