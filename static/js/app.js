@@ -1,4 +1,4 @@
-// AtaraxAi - Athletic Training Platform JavaScript
+// AtaraxAi - Athletic Training Platform JavaScript v1.1
 
 class AtaraxAiApp {
     constructor() {
@@ -11,11 +11,16 @@ class AtaraxAiApp {
     }
 
     async init() {
+        console.log('AtaraxAi v1.1 - Initializing...');
+        
         // Check for existing authentication
         const token = localStorage.getItem('auth_token');
+        console.log('Token found:', !!token);
+        
         if (token) {
             try {
                 await this.loadUserProfile();
+                console.log('User authenticated, showing dashboard');
                 this.showDashboard();
             } catch (error) {
                 console.log('Invalid token, showing landing page');
@@ -23,11 +28,13 @@ class AtaraxAiApp {
                 this.showLandingPage();
             }
         } else {
+            console.log('No token found, showing landing page');
             this.showLandingPage();
         }
 
         this.setupEventListeners();
         this.hideLoading();
+        console.log('AtaraxAi initialization complete');
     }
 
     setupEventListeners() {
@@ -465,6 +472,7 @@ class AtaraxAiApp {
 
     // Modal Management
     showAuthModal() {
+        console.log('showAuthModal called');
         document.getElementById('auth-modal').classList.remove('hidden');
         this.showLoginForm();
     }
@@ -487,12 +495,17 @@ class AtaraxAiApp {
     }
 
     showGoalModal() {
+        console.log('showGoalModal called, currentUser:', !!this.currentUser);
+        
         // Check if user is authenticated first
         if (!this.currentUser) {
-            this.showError('Please log in first to create a goal.');
+            console.log('User not authenticated, showing auth modal instead');
+            // Don't show error, just directly show auth modal for better UX
             this.showAuthModal();
             return;
         }
+        
+        console.log('User authenticated, showing goal modal');
         document.getElementById('goal-modal').classList.remove('hidden');
     }
 
