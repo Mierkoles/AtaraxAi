@@ -1,0 +1,1 @@
+"""AtaraxAi application package."""
