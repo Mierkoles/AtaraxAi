@@ -33,6 +33,7 @@ class AtaraxAiApp {
         }
 
         this.setupEventListeners();
+        this.handleURLNavigation(); // Handle direct URL navigation
         this.hideLoading();
         console.log('AtaraxAi initialization complete');
     }
@@ -96,10 +97,28 @@ class AtaraxAiApp {
             }
         });
         
+        // Handle manual URL hash changes
+        window.addEventListener('hashchange', () => {
+            this.handleURLNavigation();
+        });
+        
         document.getElementById('goal-type').addEventListener('change', (e) => this.handleGoalTypeChange(e));
 
         // Set default event date to June 28, 2026
         document.getElementById('event-date').value = '2026-06-28';
+    }
+    
+    handleURLNavigation() {
+        // Check if user is trying to access a protected section via URL hash
+        const hash = window.location.hash.substring(1); // Remove #
+        const protectedSections = ['dashboard', 'goals', 'training', 'nutrition', 'profile'];
+        
+        if (protectedSections.includes(hash) && !this.currentUser) {
+            console.log('Attempted to access protected section without auth:', hash);
+            // Clear the URL hash and show auth modal
+            window.location.hash = '';
+            this.showAuthModal();
+        }
     }
 
     // Authentication Methods
