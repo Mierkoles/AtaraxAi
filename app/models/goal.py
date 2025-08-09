@@ -15,9 +15,18 @@ class GoalType(enum.Enum):
     TRIATHLON = "triathlon"
     MARATHON = "marathon"
     HALF_MARATHON = "half_marathon"
+    TEN_K = "10k"
+    FIVE_K = "5k"
     CYCLING = "cycling"
+    CENTURY_RIDE = "century_ride"  # 100 mile bike ride
     SWIMMING = "swimming"
+    WEIGHT_LOSS = "weight_loss"
+    STRENGTH_TRAINING = "strength_training"
+    MUSCLE_GAIN = "muscle_gain"
     GENERAL_FITNESS = "general_fitness"
+    OBSTACLE_RACE = "obstacle_race"  # Spartan, Tough Mudder, etc.
+    IRONMAN = "ironman"
+    CUSTOM = "custom"
 
 
 class GoalStatus(enum.Enum):
@@ -45,12 +54,23 @@ class Goal(Base):
     event_date = Column(Date, nullable=False)
     event_location = Column(String(255), nullable=True)
     
-    # Triathlon specific distances (in meters/miles as appropriate)
+    # Event/Goal specific details
     swim_distance_meters = Column(Float, nullable=True)
     bike_distance_miles = Column(Float, nullable=True)
     run_distance_miles = Column(Float, nullable=True)
     
-    # Current fitness baseline
+    # Weight/body composition goals
+    target_weight_lbs = Column(Float, nullable=True)
+    current_weight_lbs = Column(Float, nullable=True)
+    target_body_fat_percent = Column(Float, nullable=True)
+    
+    # Strength goals
+    target_bench_press_lbs = Column(Float, nullable=True)
+    target_squat_lbs = Column(Float, nullable=True)
+    target_deadlift_lbs = Column(Float, nullable=True)
+    
+    # Current fitness baseline (flexible JSON-like text)
+    current_fitness_assessment = Column(Text, nullable=True)
     current_swim_ability = Column(String(255), nullable=True)
     current_bike_ability = Column(String(255), nullable=True)
     current_run_ability = Column(String(255), nullable=True)
@@ -60,6 +80,12 @@ class Goal(Base):
     target_bike_time = Column(Integer, nullable=True)
     target_run_time = Column(Integer, nullable=True)
     target_total_time = Column(Integer, nullable=True)
+    
+    # Additional goal details
+    preferred_workout_days = Column(String(255), nullable=True)  # JSON array like ["monday", "wednesday", "friday"]
+    available_equipment = Column(Text, nullable=True)  # JSON array of available equipment
+    time_per_workout_minutes = Column(Integer, nullable=True)
+    workouts_per_week = Column(Integer, nullable=True)
     
     # Training plan phases
     total_weeks = Column(Integer, nullable=True)

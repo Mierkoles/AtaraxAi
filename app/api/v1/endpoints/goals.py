@@ -8,8 +8,10 @@ from sqlalchemy.orm import Session
 from app.core.security.deps import get_current_user
 from app.db.database import get_db
 from app.models.user import User
+from app.models.goal import GoalType
 from app.repositories.goal import goal_repository
 from app.schemas.goal import Goal, GoalCreate, GoalUpdate, GoalSummary, TriathlonGoalCreate
+from app.services.ai_training_generator import generate_ai_training_plan
 
 router = APIRouter()
 
@@ -36,7 +38,7 @@ def create_goal(
     current_user: User = Depends(get_current_user)
 ):
     """
-    Create new goal.
+    Create new goal with AI-generated training plan.
     """
     # Check if user has an active goal (one goal at a time)
     active_goal = goal_repository.get_active_goal(db, user_id=current_user.id)
@@ -46,7 +48,19 @@ def create_goal(
             detail="You already have an active goal. Please complete or pause it before creating a new one."
         )
     
-    goal = goal_repository.create_triathlon_goal(db, user_id=current_user.id, goal_in=goal_in)
+    # Create goal using the general method (not just triathlon)
+    goal = goal_repository.create_goal(db, user_id=current_user.id, goal_in=goal_in)
+    
+    # Generate AI training plan for any goal type
+    try:
+        training_plan = generate_ai_training_plan(db, goal, current_user)
+        goal.status = "active"  # Activate the goal
+        db.commit()
+        db.refresh(goal)
+    except Exception as e:
+        # If training plan generation fails, we still have the goal
+        print(f"Training plan generation failed: {e}")
+    
     return goal
 
 

@@ -17,12 +17,23 @@ class GoalBase(BaseModel):
     event_date: Optional[date] = None
     event_location: Optional[str] = None
     
-    # Triathlon distances
+    # Event distances (for running/cycling/triathlon)
     swim_distance_meters: Optional[float] = None
     bike_distance_miles: Optional[float] = None
     run_distance_miles: Optional[float] = None
     
-    # Current abilities
+    # Weight/body composition goals
+    target_weight_lbs: Optional[float] = None
+    current_weight_lbs: Optional[float] = None
+    target_body_fat_percent: Optional[float] = None
+    
+    # Strength goals
+    target_bench_press_lbs: Optional[float] = None
+    target_squat_lbs: Optional[float] = None
+    target_deadlift_lbs: Optional[float] = None
+    
+    # Current fitness baseline
+    current_fitness_assessment: Optional[str] = None
     current_swim_ability: Optional[str] = None
     current_bike_ability: Optional[str] = None
     current_run_ability: Optional[str] = None
@@ -32,6 +43,12 @@ class GoalBase(BaseModel):
     target_bike_time: Optional[int] = None
     target_run_time: Optional[int] = None
     target_total_time: Optional[int] = None
+    
+    # Training preferences
+    preferred_workout_days: Optional[List[str]] = None
+    available_equipment: Optional[List[str]] = None
+    time_per_workout_minutes: Optional[int] = None
+    workouts_per_week: Optional[int] = None
 
 
 # Properties to receive via API on creation
@@ -39,15 +56,10 @@ class GoalCreate(GoalBase):
     """Schema for creating a goal."""
     title: str
     goal_type: GoalType
-    event_date: date
+    event_date: Optional[date] = None  # Some goals might not have events
     
-    # Required for triathlon
-    swim_distance_meters: Optional[float] = 750  # Default Olympic distances
-    bike_distance_miles: Optional[float] = 14.3
-    run_distance_miles: Optional[float] = 3.1
-    
-    # Current fitness assessment
-    current_run_ability: str  # e.g., "Can run 1.5 miles before walking"
+    # Current fitness assessment (required for AI planning)
+    current_fitness_assessment: str  # General fitness description
 
 
 # Properties to receive via API on update

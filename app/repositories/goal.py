@@ -47,16 +47,20 @@ class GoalRepository(BaseRepository[Goal, GoalCreate, GoalUpdate]):
             .all()
         )
     
-    def create_triathlon_goal(self, db: Session, *, user_id: int, goal_in: GoalCreate) -> Goal:
-        """Create a triathlon goal with training plan calculation."""
-        # Calculate training weeks based on event date
-        days_until_event = (goal_in.event_date - date.today()).days
-        total_weeks = max(12, min(32, days_until_event // 7))  # 12-32 weeks
+    def create_goal(self, db: Session, *, user_id: int, goal_in: GoalCreate) -> Goal:
+        """Create any type of goal with AI planning."""
+        # Calculate training weeks based on event date or default
+        if goal_in.event_date:
+            days_until_event = (goal_in.event_date - date.today()).days
+            total_weeks = max(4, min(32, days_until_event // 7))  # 4-32 weeks
+        else:
+            # No event date - default to 12 weeks for general goals
+            total_weeks = 12
         
         goal_data = goal_in.dict()
         goal_data["user_id"] = user_id
         goal_data["total_weeks"] = total_weeks
-        goal_data["current_phase"] = "base"
+        goal_data["current_phase"] = "planning"
         goal_data["status"] = GoalStatus.PLANNING
         
         goal = Goal(**goal_data)
@@ -64,6 +68,11 @@ class GoalRepository(BaseRepository[Goal, GoalCreate, GoalUpdate]):
         db.commit()
         db.refresh(goal)
         return goal
+    
+    def create_triathlon_goal(self, db: Session, *, user_id: int, goal_in: GoalCreate) -> Goal:
+        """Create a triathlon goal with training plan calculation."""
+        # Use the general create_goal method
+        return self.create_goal(db, user_id=user_id, goal_in=goal_in)
     
     def activate_goal(self, db: Session, *, goal: Goal) -> Goal:
         """Activate a goal and deactivate others for the same user."""

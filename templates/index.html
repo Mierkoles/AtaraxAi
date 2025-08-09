@@ -168,14 +168,35 @@
         <div id="goal-modal" class="hidden" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;">
             <div class="card" style="width: 100%; max-width: 600px; margin: 1rem; max-height: 90vh; overflow-y: auto;">
                 <div class="card-header">
-                    <h3 class="card-title">Create Your Triathlon Goal</h3>
-                    <p class="card-subtitle">Tell us about your target event and current fitness</p>
+                    <h3 class="card-title">Create Your Fitness Goal</h3>
+                    <p class="card-subtitle">Tell us about your target and we'll create a personalized training plan</p>
                 </div>
                 
                 <form id="goal-form">
                     <div class="form-group">
                         <label class="form-label" for="goal-title">Goal Title</label>
-                        <input type="text" id="goal-title" class="form-input" placeholder="e.g., June 2026 Triathlon" required>
+                        <input type="text" id="goal-title" class="form-input" placeholder="e.g., June 2026 Triathlon or Lose 20 pounds" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="goal-type">Goal Type</label>
+                        <select id="goal-type" class="form-input form-select" required>
+                            <option value="">Select your goal type...</option>
+                            <option value="triathlon">Triathlon</option>
+                            <option value="marathon">Marathon</option>
+                            <option value="half_marathon">Half Marathon</option>
+                            <option value="10k">10K Race</option>
+                            <option value="5k">5K Race</option>
+                            <option value="cycling">Cycling</option>
+                            <option value="century_ride">Century Ride (100 miles)</option>
+                            <option value="weight_loss">Weight Loss</option>
+                            <option value="muscle_gain">Muscle Gain</option>
+                            <option value="strength_training">Strength Training</option>
+                            <option value="general_fitness">General Fitness</option>
+                            <option value="obstacle_race">Obstacle Race</option>
+                            <option value="ironman">Ironman</option>
+                            <option value="custom">Custom Goal</option>
+                        </select>
                     </div>
                     
                     <div class="form-group">
@@ -185,31 +206,73 @@
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="form-group">
-                            <label class="form-label" for="event-date">Event Date</label>
-                            <input type="date" id="event-date" class="form-input" required>
+                            <label class="form-label" for="event-date">Target Date (optional)</label>
+                            <input type="date" id="event-date" class="form-input">
+                            <small class="text-sm text-gray-500">Leave blank for general fitness goals</small>
                         </div>
                         <div class="form-group">
-                            <label class="form-label" for="event-location">Event Location</label>
+                            <label class="form-label" for="event-location">Event Location (optional)</label>
                             <input type="text" id="event-location" class="form-input" placeholder="City, State">
                         </div>
                     </div>
 
-                    <div class="card-header">
-                        <h4>Race Distances</h4>
+                    <!-- Goal-specific fields (shown/hidden based on goal type) -->
+                    <div id="race-distances" class="hidden">
+                        <div class="card-header">
+                            <h4>Race Distances</h4>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="form-group" id="swim-distance-group">
+                                <label class="form-label" for="swim-distance">Swim (meters)</label>
+                                <input type="number" id="swim-distance" class="form-input" value="750">
+                            </div>
+                            <div class="form-group" id="bike-distance-group">
+                                <label class="form-label" for="bike-distance">Bike (miles)</label>
+                                <input type="number" id="bike-distance" class="form-input" value="14.3" step="0.1">
+                            </div>
+                            <div class="form-group" id="run-distance-group">
+                                <label class="form-label" for="run-distance">Run (miles)</label>
+                                <input type="number" id="run-distance" class="form-input" value="3.1" step="0.1">
+                            </div>
+                        </div>
                     </div>
-                    
-                    <div class="grid grid-cols-3 gap-4">
-                        <div class="form-group">
-                            <label class="form-label" for="swim-distance">Swim (meters)</label>
-                            <input type="number" id="swim-distance" class="form-input" value="750" required>
+
+                    <div id="weight-goals" class="hidden">
+                        <div class="card-header">
+                            <h4>Weight Goals</h4>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label" for="bike-distance">Bike (miles)</label>
-                            <input type="number" id="bike-distance" class="form-input" value="14.3" step="0.1" required>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="form-group">
+                                <label class="form-label" for="current-weight">Current Weight (lbs)</label>
+                                <input type="number" id="current-weight" class="form-input" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="target-weight">Target Weight (lbs)</label>
+                                <input type="number" id="target-weight" class="form-input" step="0.1">
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label" for="run-distance">Run (miles)</label>
-                            <input type="number" id="run-distance" class="form-input" value="3.1" step="0.1" required>
+                    </div>
+
+                    <div id="strength-goals" class="hidden">
+                        <div class="card-header">
+                            <h4>Strength Goals</h4>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="form-group">
+                                <label class="form-label" for="target-bench">Bench Press Goal (lbs)</label>
+                                <input type="number" id="target-bench" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="target-squat">Squat Goal (lbs)</label>
+                                <input type="number" id="target-squat" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="target-deadlift">Deadlift Goal (lbs)</label>
+                                <input type="number" id="target-deadlift" class="form-input">
+                            </div>
                         </div>
                     </div>
 
@@ -218,22 +281,39 @@
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label" for="swim-ability">Swimming Ability</label>
-                        <textarea id="swim-ability" class="form-input" placeholder="e.g., Can swim 200m continuously, comfortable in open water" required></textarea>
+                        <label class="form-label" for="fitness-assessment">Describe Your Current Fitness Level</label>
+                        <textarea id="fitness-assessment" class="form-input form-textarea" 
+                                  placeholder="e.g., Can run 1.5 miles before walking, swim 200m, bike 5 miles, workout 2x/week" 
+                                  required></textarea>
+                    </div>
+
+                    <div class="card-header">
+                        <h4>Training Preferences</h4>
                     </div>
                     
-                    <div class="form-group">
-                        <label class="form-label" for="bike-ability">Cycling Ability</label>
-                        <textarea id="bike-ability" class="form-input" placeholder="e.g., Can bike 5 miles at moderate pace, own a road bike" required></textarea>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label" for="run-ability">Running Ability</label>
-                        <textarea id="run-ability" class="form-input" placeholder="e.g., Can run 1.5 miles before needing to walk" required></textarea>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="form-group">
+                            <label class="form-label" for="workouts-per-week">Workouts Per Week</label>
+                            <select id="workouts-per-week" class="form-input form-select">
+                                <option value="3">3 workouts</option>
+                                <option value="4" selected>4 workouts</option>
+                                <option value="5">5 workouts</option>
+                                <option value="6">6 workouts</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="workout-duration">Workout Duration (minutes)</label>
+                            <select id="workout-duration" class="form-input form-select">
+                                <option value="30">30 minutes</option>
+                                <option value="45" selected>45 minutes</option>
+                                <option value="60">60 minutes</option>
+                                <option value="90">90 minutes</option>
+                            </select>
+                        </div>
                     </div>
                     
                     <div class="flex gap-4">
-                        <button type="submit" class="btn btn-primary flex-1">Create Goal & Training Plan</button>
+                        <button type="submit" class="btn btn-primary flex-1">Create Goal & AI Training Plan</button>
                         <button type="button" class="btn btn-outline" id="close-goal-modal">Cancel</button>
                     </div>
                 </form>

@@ -53,6 +53,7 @@ class AtaraxAiApp {
         document.getElementById('create-goal-btn').addEventListener('click', () => this.showGoalModal());
         document.getElementById('close-goal-modal').addEventListener('click', () => this.hideGoalModal());
         document.getElementById('goal-form').addEventListener('submit', (e) => this.handleCreateGoal(e));
+        document.getElementById('goal-type').addEventListener('change', (e) => this.handleGoalTypeChange(e));
 
         // Set default event date to June 28, 2026
         document.getElementById('event-date').value = '2026-06-28';
@@ -128,27 +129,114 @@ class AtaraxAiApp {
     }
 
     // Goal Management
+    handleGoalTypeChange(e) {
+        const goalType = e.target.value;
+        
+        // Hide all goal-specific sections
+        document.getElementById('race-distances').classList.add('hidden');
+        document.getElementById('weight-goals').classList.add('hidden');
+        document.getElementById('strength-goals').classList.add('hidden');
+        
+        // Show/hide distance fields based on goal type
+        const swimGroup = document.getElementById('swim-distance-group');
+        const bikeGroup = document.getElementById('bike-distance-group');
+        const runGroup = document.getElementById('run-distance-group');
+        
+        // Reset visibility
+        swimGroup.style.display = 'block';
+        bikeGroup.style.display = 'block';
+        runGroup.style.display = 'block';
+        
+        // Show relevant sections based on goal type
+        if (['triathlon', 'ironman'].includes(goalType)) {
+            document.getElementById('race-distances').classList.remove('hidden');
+            // Set default triathlon distances
+            document.getElementById('swim-distance').value = goalType === 'ironman' ? '3800' : '750';
+            document.getElementById('bike-distance').value = goalType === 'ironman' ? '112' : '14.3';
+            document.getElementById('run-distance').value = goalType === 'ironman' ? '26.2' : '3.1';
+        } else if (['marathon', 'half_marathon', '10k', '5k'].includes(goalType)) {
+            document.getElementById('race-distances').classList.remove('hidden');
+            swimGroup.style.display = 'none';
+            bikeGroup.style.display = 'none';
+            
+            const distances = {
+                'marathon': '26.2',
+                'half_marathon': '13.1',
+                '10k': '6.2',
+                '5k': '3.1'
+            };
+            document.getElementById('run-distance').value = distances[goalType] || '3.1';
+        } else if (['cycling', 'century_ride'].includes(goalType)) {
+            document.getElementById('race-distances').classList.remove('hidden');
+            swimGroup.style.display = 'none';
+            runGroup.style.display = 'none';
+            
+            document.getElementById('bike-distance').value = goalType === 'century_ride' ? '100' : '50';
+        } else if (['weight_loss', 'muscle_gain'].includes(goalType)) {
+            document.getElementById('weight-goals').classList.remove('hidden');
+        } else if (goalType === 'strength_training') {
+            document.getElementById('strength-goals').classList.remove('hidden');
+        }
+        
+        // Update placeholder text based on goal
+        const fitnessAssessment = document.getElementById('fitness-assessment');
+        const placeholders = {
+            'triathlon': 'e.g., Can run 1.5 miles, swim 200m, bike 5 miles. New to triathlon training.',
+            'marathon': 'e.g., Can run 3 miles continuously, currently running 2x/week',
+            'weight_loss': 'e.g., Currently 175lbs, want to lose 15lbs. Exercise 2x/week, mostly walking.',
+            'strength_training': 'e.g., Beginner with weights, can bench 100lbs, squat bodyweight',
+            'general_fitness': 'e.g., Sedentary lifestyle, want to get in shape, no current exercise routine'
+        };
+        
+        fitnessAssessment.placeholder = placeholders[goalType] || fitnessAssessment.placeholder;
+    }
+
     async handleCreateGoal(e) {
         e.preventDefault();
         
+        const goalType = document.getElementById('goal-type').value;
+        const eventDate = document.getElementById('event-date').value;
+        
         const goalData = {
             title: document.getElementById('goal-title').value,
+            goal_type: goalType,
             description: document.getElementById('goal-description').value,
-            event_date: document.getElementById('event-date').value,
+            event_date: eventDate || null,
             event_location: document.getElementById('event-location').value,
-            swim_distance_meters: parseFloat(document.getElementById('swim-distance').value),
-            bike_distance_miles: parseFloat(document.getElementById('bike-distance').value),
-            run_distance_miles: parseFloat(document.getElementById('run-distance').value),
-            current_swim_ability: document.getElementById('swim-ability').value,
-            current_bike_ability: document.getElementById('bike-ability').value,
-            current_run_ability: document.getElementById('run-ability').value
+            current_fitness_assessment: document.getElementById('fitness-assessment').value,
+            workouts_per_week: parseInt(document.getElementById('workouts-per-week').value),
+            time_per_workout_minutes: parseInt(document.getElementById('workout-duration').value)
         };
 
+        // Add goal-specific data
+        if (['triathlon', 'ironman', 'marathon', 'half_marathon', '10k', '5k', 'cycling', 'century_ride'].includes(goalType)) {
+            if (document.getElementById('swim-distance-group').style.display !== 'none') {
+                goalData.swim_distance_meters = parseFloat(document.getElementById('swim-distance').value) || null;
+            }
+            if (document.getElementById('bike-distance-group').style.display !== 'none') {
+                goalData.bike_distance_miles = parseFloat(document.getElementById('bike-distance').value) || null;
+            }
+            if (document.getElementById('run-distance-group').style.display !== 'none') {
+                goalData.run_distance_miles = parseFloat(document.getElementById('run-distance').value) || null;
+            }
+        }
+
+        if (['weight_loss', 'muscle_gain'].includes(goalType)) {
+            goalData.current_weight_lbs = parseFloat(document.getElementById('current-weight').value) || null;
+            goalData.target_weight_lbs = parseFloat(document.getElementById('target-weight').value) || null;
+        }
+
+        if (goalType === 'strength_training') {
+            goalData.target_bench_press_lbs = parseFloat(document.getElementById('target-bench').value) || null;
+            goalData.target_squat_lbs = parseFloat(document.getElementById('target-squat').value) || null;
+            goalData.target_deadlift_lbs = parseFloat(document.getElementById('target-deadlift').value) || null;
+        }
+
         try {
-            const goal = await this.apiCall('/goals/triathlon', 'POST', goalData);
+            const goal = await this.apiCall('/goals/', 'POST', goalData);
             this.currentGoal = goal;
             this.hideGoalModal();
-            this.showSuccess('Goal created successfully! Training plan is being generated.');
+            this.showSuccess('Goal created successfully! Your AI training plan is being generated.');
             await this.loadDashboardData();
             this.showSection('dashboard');
         } catch (error) {
@@ -348,6 +436,12 @@ class AtaraxAiApp {
     }
 
     showGoalModal() {
+        // Check if user is authenticated first
+        if (!this.currentUser) {
+            this.showError('Please log in first to create a goal.');
+            this.showAuthModal();
+            return;
+        }
         document.getElementById('goal-modal').classList.remove('hidden');
     }
 
