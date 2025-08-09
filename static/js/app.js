@@ -36,7 +36,9 @@ class AtaraxAiApp {
         this.handleURLNavigation(); // Handle direct URL navigation
         
         // SAFETY: Ensure goal modal is always hidden on initialization
-        document.getElementById('goal-modal').classList.add('hidden');
+        const goalModal = document.getElementById('goal-modal');
+        goalModal.classList.add('hidden');
+        goalModal.style.display = 'none';
         console.log('Goal modal forced hidden on init');
         
         this.hideLoading();
@@ -523,7 +525,9 @@ class AtaraxAiApp {
         console.log('showGoalModal called, currentUser:', !!this.currentUser);
         
         // EMERGENCY: Force close goal modal if it's already showing
-        document.getElementById('goal-modal').classList.add('hidden');
+        const modal = document.getElementById('goal-modal');
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
         
         // Check if user is authenticated first
         if (!this.currentUser) {
@@ -534,11 +538,14 @@ class AtaraxAiApp {
         }
         
         console.log('User authenticated, showing goal modal');
-        document.getElementById('goal-modal').classList.remove('hidden');
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex'; // Override the !important none
     }
 
     hideGoalModal() {
-        document.getElementById('goal-modal').classList.add('hidden');
+        const modal = document.getElementById('goal-modal');
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
         document.getElementById('goal-form').reset();
         // Reset default date
         document.getElementById('event-date').value = '2026-06-28';
@@ -547,7 +554,9 @@ class AtaraxAiApp {
     // Emergency method to force close all modals and show auth
     forceShowAuth() {
         console.log('EMERGENCY: Force closing all modals and showing auth');
-        document.getElementById('goal-modal').classList.add('hidden');
+        const goalModal = document.getElementById('goal-modal');
+        goalModal.classList.add('hidden');
+        goalModal.style.display = 'none';
         document.getElementById('auth-modal').classList.remove('hidden');
         this.showLoginForm();
     }
