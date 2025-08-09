@@ -167,9 +167,12 @@
         <!-- Goal Creation Form -->
         <div id="goal-modal" class="hidden" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;">
             <div class="card" style="width: 100%; max-width: 600px; margin: 1rem; max-height: 90vh; overflow-y: auto;">
-                <div class="card-header">
-                    <h3 class="card-title">Create Your Fitness Goal</h3>
-                    <p class="card-subtitle">Tell us about your target and we'll create a personalized training plan</p>
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <h3 class="card-title">Create Your Fitness Goal</h3>
+                        <p class="card-subtitle">Tell us about your target and we'll create a personalized training plan</p>
+                    </div>
+                    <button type="button" class="btn btn-outline" id="close-goal-modal-x" style="padding: 0.5rem 0.75rem; font-size: 1.5rem; line-height: 1; margin-left: 1rem;">&times;</button>
                 </div>
                 
                 <form id="goal-form">

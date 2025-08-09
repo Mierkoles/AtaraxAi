@@ -34,6 +34,11 @@ class AtaraxAiApp {
 
         this.setupEventListeners();
         this.handleURLNavigation(); // Handle direct URL navigation
+        
+        // SAFETY: Ensure goal modal is always hidden on initialization
+        document.getElementById('goal-modal').classList.add('hidden');
+        console.log('Goal modal forced hidden on init');
+        
         this.hideLoading();
         console.log('AtaraxAi initialization complete');
     }
@@ -70,6 +75,7 @@ class AtaraxAiApp {
         // Goal creation
         document.getElementById('create-goal-btn').addEventListener('click', () => this.showGoalModal());
         document.getElementById('close-goal-modal').addEventListener('click', () => this.hideGoalModal());
+        document.getElementById('close-goal-modal-x').addEventListener('click', () => this.hideGoalModal());
         document.getElementById('goal-form').addEventListener('submit', (e) => this.handleCreateGoal(e));
         
         // Click outside to close modals
@@ -516,6 +522,9 @@ class AtaraxAiApp {
     showGoalModal() {
         console.log('showGoalModal called, currentUser:', !!this.currentUser);
         
+        // EMERGENCY: Force close goal modal if it's already showing
+        document.getElementById('goal-modal').classList.add('hidden');
+        
         // Check if user is authenticated first
         if (!this.currentUser) {
             console.log('User not authenticated, showing auth modal instead');
@@ -533,6 +542,14 @@ class AtaraxAiApp {
         document.getElementById('goal-form').reset();
         // Reset default date
         document.getElementById('event-date').value = '2026-06-28';
+    }
+    
+    // Emergency method to force close all modals and show auth
+    forceShowAuth() {
+        console.log('EMERGENCY: Force closing all modals and showing auth');
+        document.getElementById('goal-modal').classList.add('hidden');
+        document.getElementById('auth-modal').classList.remove('hidden');
+        this.showLoginForm();
     }
 
     clearAuthForms() {
