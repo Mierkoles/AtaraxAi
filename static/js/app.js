@@ -63,6 +63,32 @@ class AtaraxAiApp {
         document.getElementById('create-goal-btn').addEventListener('click', () => this.showGoalModal());
         document.getElementById('close-goal-modal').addEventListener('click', () => this.hideGoalModal());
         document.getElementById('goal-form').addEventListener('submit', (e) => this.handleCreateGoal(e));
+        
+        // Click outside to close modals
+        document.getElementById('goal-modal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('goal-modal')) {
+                this.hideGoalModal();
+            }
+        });
+        
+        document.getElementById('auth-modal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('auth-modal')) {
+                this.hideAuthModal();
+            }
+        });
+        
+        // Escape key to close modals
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (!document.getElementById('goal-modal').classList.contains('hidden')) {
+                    this.hideGoalModal();
+                }
+                if (!document.getElementById('auth-modal').classList.contains('hidden')) {
+                    this.hideAuthModal();
+                }
+            }
+        });
+        
         document.getElementById('goal-type').addEventListener('change', (e) => this.handleGoalTypeChange(e));
 
         // Set default event date to June 28, 2026
