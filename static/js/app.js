@@ -45,6 +45,16 @@ class AtaraxAiApp {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 const section = e.target.getAttribute('href').substring(1);
+                
+                // Check authentication for protected sections
+                if (['dashboard', 'goals', 'training', 'nutrition', 'profile'].includes(section)) {
+                    if (!this.currentUser) {
+                        this.showError('Please log in first to access this section.');
+                        this.showAuthModal();
+                        return;
+                    }
+                }
+                
                 this.showSection(section);
             });
         });
@@ -403,12 +413,24 @@ class AtaraxAiApp {
 
     updateAuthButton() {
         const authBtn = document.getElementById('auth-btn');
+        const navLinks = document.querySelectorAll('.nav-link');
+        
         if (this.currentUser) {
             authBtn.textContent = 'Logout';
             authBtn.onclick = () => this.logout();
+            
+            // Show navigation links for authenticated users
+            navLinks.forEach(link => {
+                link.style.display = 'block';
+            });
         } else {
             authBtn.textContent = 'Login';
             authBtn.onclick = () => this.showAuthModal();
+            
+            // Hide navigation links for non-authenticated users
+            navLinks.forEach(link => {
+                link.style.display = 'none';
+            });
         }
     }
 

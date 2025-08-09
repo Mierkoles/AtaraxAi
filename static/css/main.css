@@ -152,9 +152,14 @@ p {
     color: var(--gray-600);
     font-weight: 500;
     transition: color 0.2s;
+    display: none; /* Hidden by default, shown via JavaScript when authenticated */
 }
 
 .nav-link:hover {
+    color: var(--primary);
+}
+
+.nav-link.active {
     color: var(--primary);
 }
 
@@ -408,6 +413,12 @@ p {
         font-size: 2rem;
     }
 }
+
+/* Notification boxes */
+.bg-blue-50 { background-color: #eff6ff; }
+.bg-blue-100 { background-color: #dbeafe; }
+.border-blue-200 { border-color: #bfdbfe; }
+.text-blue-800 { color: #1e40af; }
 
 /* Utilities */
 .hidden { display: none; }
