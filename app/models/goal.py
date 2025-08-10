@@ -2,7 +2,7 @@
 Athletic Goal model.
 """
 from datetime import datetime, date
-from sqlalchemy import Column, Integer, String, Date, Float, Text, ForeignKey, Enum as SQLEnum
+from sqlalchemy import Column, Integer, String, Date, DateTime, Float, Text, ForeignKey, Enum as SQLEnum
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 import enum
@@ -51,7 +51,7 @@ class Goal(Base):
     status = Column(SQLEnum(GoalStatus), default=GoalStatus.PLANNING)
     
     # Event details
-    event_date = Column(Date, nullable=False)
+    event_date = Column(Date, nullable=True)  # Allow null for general fitness goals
     event_location = Column(String(255), nullable=True)
     
     # Event/Goal specific details
@@ -93,8 +93,8 @@ class Goal(Base):
     current_phase = Column(String(100), nullable=True)  # base, build, peak, taper
     
     # Timestamps
-    created_at = Column(Date, server_default=func.now())
-    updated_at = Column(Date, server_default=func.now(), onupdate=func.now())
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
     
     # Relationships
     user = relationship("User", back_populates="goals")
@@ -105,7 +105,7 @@ class Goal(Base):
     def days_until_event(self) -> int:
         """Calculate days until event."""
         if self.event_date:
-            return (self.event_date - date.today()).days
+            return max(0, (self.event_date - date.today()).days)
         return 0
     
     @property

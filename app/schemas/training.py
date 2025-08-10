@@ -1,7 +1,7 @@
 """
 Training Pydantic schemas.
 """
-from datetime import date
+from datetime import date, datetime
 from typing import Optional, List
 from pydantic import BaseModel
 
@@ -18,6 +18,10 @@ class TrainingPlanBase(BaseModel):
     build_weeks: Optional[int] = None
     peak_weeks: Optional[int] = None
     taper_weeks: Optional[int] = None
+    weekly_swim_sessions: Optional[int] = None
+    weekly_bike_sessions: Optional[int] = None
+    weekly_run_sessions: Optional[int] = None
+    weekly_strength_sessions: Optional[int] = None
 
 
 class TrainingPlanCreate(TrainingPlanBase):
@@ -32,7 +36,7 @@ class TrainingPlan(TrainingPlanBase):
     goal_id: int
     is_generated: bool
     generated_at: Optional[date]
-    created_at: date
+    created_at: datetime
     
     class Config:
         """Pydantic config."""
@@ -69,7 +73,7 @@ class Workout(WorkoutBase):
     day_of_week: int
     scheduled_date: Optional[date]
     is_completed: bool
-    created_at: date
+    created_at: datetime
     
     class Config:
         """Pydantic config."""
@@ -110,7 +114,7 @@ class WorkoutLog(WorkoutLogBase):
     user_id: int
     goal_id: int
     workout_id: Optional[int]
-    created_at: date
+    created_at: datetime
     
     class Config:
         """Pydantic config."""

@@ -21,6 +21,9 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = "sqlite:///./atarax.db"
     
+    # AI/LLM Configuration
+    ANTHROPIC_API_KEY: Optional[str] = None
+    
     # Azure Configuration
     AZURE_SQL_SERVER: Optional[str] = None
     AZURE_SQL_DATABASE: Optional[str] = None

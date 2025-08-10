@@ -24,7 +24,10 @@
     <header class="header">
         <div class="container">
             <div class="header-content">
-                <a href="/" class="logo">{{ app_name }}</a>
+                <a href="/" class="logo">
+                    <img src="/static/images/atarax-logo.png" alt="{{ app_name }}" class="logo-image">
+                    <span class="logo-text">{{ app_name }}</span>
+                </a>
                 <nav class="nav" id="main-nav">
                     <a href="#dashboard" class="nav-link">Dashboard</a>
                     <a href="#goals" class="nav-link">Goals</a>
@@ -46,7 +49,7 @@
         </div>
 
         <!-- Authentication Modal -->
-        <div id="auth-modal" class="hidden" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;">
+        <div id="auth-modal" class="hidden" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
             <div class="card" style="width: 100%; max-width: 400px; margin: 1rem;">
                 <div class="card-header">
                     <h3 class="card-title" id="auth-title">Welcome to {{ app_name }}</h3>
@@ -323,6 +326,136 @@
             </div>
         </div>
 
+        <!-- Training Section -->
+        <section id="training-section" class="dashboard hidden">
+            <div class="container">
+                <div class="dashboard-header">
+                    <h1>Training Plans</h1>
+                    <p class="text-gray-600">Your AI-generated training plans and workouts</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Training Plans -->
+                    <div class="lg:col-span-2">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Your Training Plans</h3>
+                            </div>
+                            <div id="training-plans-list">
+                                <p class="text-gray-600">Loading training plans...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Current Week Overview -->
+                    <div>
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">This Week's Workouts</h3>
+                            </div>
+                            <div id="weekly-workouts">
+                                <p class="text-gray-600">Loading workouts...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Workout Schedule -->
+                <div class="card mt-6">
+                    <div class="card-header">
+                        <h3 class="card-title">Workout Calendar</h3>
+                    </div>
+                    <div id="workout-calendar">
+                        <p class="text-gray-600">Loading workout calendar...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Nutrition Section -->
+        <section id="nutrition-section" class="dashboard hidden">
+            <div class="container">
+                <div class="dashboard-header">
+                    <h1>Nutrition Plans</h1>
+                    <p class="text-gray-600">Personalized meal plans and nutrition guidance</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Daily Nutrition -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Today's Nutrition</h3>
+                        </div>
+                        <div id="daily-nutrition">
+                            <p class="text-gray-600">Nutrition plans coming soon! This feature is currently under development.</p>
+                        </div>
+                    </div>
+
+                    <!-- Meal Plans -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Meal Plans</h3>
+                        </div>
+                        <div id="meal-plans">
+                            <p class="text-gray-600">AI-generated meal plans will be available in a future update.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nutrition Goals -->
+                <div class="card mt-6">
+                    <div class="card-header">
+                        <h3 class="card-title">Nutrition Goals</h3>
+                    </div>
+                    <div id="nutrition-goals">
+                        <p class="text-gray-600">Set and track your nutrition goals here.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Profile Section -->
+        <section id="profile-section" class="dashboard hidden">
+            <div class="container">
+                <div class="dashboard-header">
+                    <h1>Profile Settings</h1>
+                    <p class="text-gray-600">Manage your account and preferences</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- User Information -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">User Information</h3>
+                        </div>
+                        <div id="user-profile">
+                            <p class="text-gray-600">Loading profile information...</p>
+                        </div>
+                    </div>
+
+                    <!-- Settings -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Settings</h3>
+                        </div>
+                        <div id="user-settings">
+                            <p class="text-gray-600">Profile settings coming soon!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Actions -->
+                <div class="card mt-6">
+                    <div class="card-header">
+                        <h3 class="card-title">Account Actions</h3>
+                    </div>
+                    <div id="account-actions" class="p-4">
+                        <button class="btn btn-danger" onclick="app.logout()">Logout</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Landing Page for Non-Authenticated Users -->
         <section id="landing-section" class="dashboard">
             <div class="container">
@@ -380,6 +513,6 @@
     </main>
 
     <!-- JavaScript -->
-    <script src="/static/js/app.js"></script>
+            <script src="/static/js/app.js?v=2.7"></script>
 </body>
 </html>

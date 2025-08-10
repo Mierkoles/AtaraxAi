@@ -2,7 +2,7 @@
 Training and workout models.
 """
 from datetime import datetime, date
-from sqlalchemy import Column, Integer, String, Date, Float, Text, ForeignKey, Enum as SQLEnum, Boolean
+from sqlalchemy import Column, Integer, String, Date, DateTime, Float, Text, ForeignKey, Enum as SQLEnum, Boolean
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 import enum
@@ -64,11 +64,11 @@ class TrainingPlan(Base):
     
     # Generated plan
     is_generated = Column(Boolean, default=False)
-    generated_at = Column(Date, nullable=True)
+    generated_at = Column(Date, nullable=True)  # Keep this as Date since it only stores date
     
     # Timestamps
-    created_at = Column(Date, server_default=func.now())
-    updated_at = Column(Date, server_default=func.now(), onupdate=func.now())
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
     
     # Relationships
     goal = relationship("Goal", back_populates="training_plans")
@@ -116,8 +116,8 @@ class Workout(Base):
     exercises = Column(Text, nullable=True)  # JSON string of exercises
     
     # Timestamps
-    created_at = Column(Date, server_default=func.now())
-    updated_at = Column(Date, server_default=func.now(), onupdate=func.now())
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
     
     # Relationships
     training_plan = relationship("TrainingPlan", back_populates="workouts")
@@ -160,8 +160,8 @@ class WorkoutLog(Base):
     weather_conditions = Column(String(255), nullable=True)
     
     # Timestamps
-    created_at = Column(Date, server_default=func.now())
-    updated_at = Column(Date, server_default=func.now(), onupdate=func.now())
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
     
     # Relationships
     user = relationship("User", back_populates="workout_logs")

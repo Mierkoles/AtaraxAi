@@ -1,7 +1,7 @@
 """
 Goal Pydantic schemas.
 """
-from datetime import date
+from datetime import date, datetime
 from typing import Optional, List
 from pydantic import BaseModel
 
@@ -82,8 +82,8 @@ class Goal(GoalBase):
     days_until_event: int
     weeks_until_event: int
     progress_percentage: float
-    created_at: date
-    updated_at: date
+    created_at: datetime
+    updated_at: datetime
     
     class Config:
         """Pydantic config."""
@@ -105,7 +105,7 @@ class GoalSummary(BaseModel):
     title: str
     goal_type: GoalType
     status: GoalStatus
-    event_date: date
+    event_date: Optional[date]
     days_until_event: int
     progress_percentage: float
     
