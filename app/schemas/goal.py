@@ -49,6 +49,17 @@ class GoalBase(BaseModel):
     available_equipment: Optional[List[str]] = None
     time_per_workout_minutes: Optional[int] = None
     workouts_per_week: Optional[int] = None
+    
+    # Personal information for AI training plan generation
+    birth_date: Optional[date] = None
+    medical_conditions: Optional[str] = None
+    training_experience: Optional[str] = None
+    
+    # Training plan phases
+    base_weeks: Optional[int] = None
+    build_weeks: Optional[int] = None
+    peak_weeks: Optional[int] = None
+    taper_weeks: Optional[int] = None
 
 
 # Properties to receive via API on creation

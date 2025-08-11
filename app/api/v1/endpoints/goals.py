@@ -1,6 +1,7 @@
 """
 Goals API endpoints.
 """
+from datetime import date
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -9,9 +10,12 @@ from app.core.security.deps import get_current_user
 from app.db.database import get_db
 from app.models.user import User
 from app.models.goal import GoalType, GoalStatus
+from app.models.training import WorkoutLog, Workout
 from app.repositories.goal import goal_repository
 from app.schemas.goal import Goal, GoalCreate, GoalUpdate, GoalSummary, TriathlonGoalCreate
 from app.services.claude_training_generator import create_claude_training_plan
+from app.services.mock_claude_training_generator import create_mock_claude_training_plan
+from app.services.adaptive_training_generator import create_adaptive_training_plan
 
 router = APIRouter()
 
@@ -51,9 +55,21 @@ def create_goal(
     # Create goal using the general method (not just triathlon)
     goal = goal_repository.create_goal(db, user_id=current_user.id, goal_in=goal_in)
     
-    # Generate AI-powered training plan with Claude
+    # Generate AI-powered training plan with adaptive approach
     try:
-        training_plan = create_claude_training_plan(db, goal, current_user)
+        from app.core.config import settings
+        
+        # Use adaptive training generator as the new default
+        print("Using adaptive training generator with rolling 2-week windows")
+        training_plan = create_adaptive_training_plan(db, goal, current_user)
+        
+        # Fallback options for comparison/testing
+        # if settings.USE_MOCK_CLAUDE:
+        #     print("Using mock Claude service for testing")
+        #     training_plan = create_mock_claude_training_plan(db, goal, current_user)
+        # else:
+        #     training_plan = create_claude_training_plan(db, goal, current_user)
+            
         goal.status = GoalStatus.ACTIVE  # Activate the goal
         db.commit()
         db.refresh(goal)
@@ -129,6 +145,87 @@ def get_dashboard_data(
     # Get active goal
     active_goal = goal_repository.get_active_goal(db, user_id=current_user.id)
     
+    # Update goal progress if there's an active goal
+    if active_goal:
+        # Calculate current week based on goal start date
+        goal_start_date = active_goal.created_at.date() if active_goal.created_at else date.today()
+        days_since_start = (date.today() - goal_start_date).days
+        calculated_current_week = max(1, (days_since_start // 7) + 1)
+        
+        # Update current week if it has changed OR if goal is still in planning status OR if phase is not set
+        needs_update = (
+            active_goal.current_week != calculated_current_week or 
+            active_goal.status == GoalStatus.PLANNING or
+            not active_goal.current_phase or
+            active_goal.current_phase.lower() == "planning"
+        ) and active_goal.total_weeks
+        
+        if needs_update:
+            if calculated_current_week <= active_goal.total_weeks:
+                active_goal.current_week = calculated_current_week
+                
+                # Activate goal if it's still in planning status
+                if active_goal.status == GoalStatus.PLANNING:
+                    active_goal.status = GoalStatus.ACTIVE
+                
+                # Calculate and update current phase (always update to ensure correctness)
+                base_weeks = active_goal.base_weeks or 0
+                build_weeks = active_goal.build_weeks or 0
+                peak_weeks = active_goal.peak_weeks or 0
+                
+                if calculated_current_week <= base_weeks:
+                    active_goal.current_phase = "Base"
+                elif calculated_current_week <= base_weeks + build_weeks:
+                    active_goal.current_phase = "Build"  
+                elif calculated_current_week <= base_weeks + build_weeks + peak_weeks:
+                    active_goal.current_phase = "Peak"
+                else:
+                    active_goal.current_phase = "Taper"
+                
+                db.commit()
+                db.refresh(active_goal)
+    
+    # Get workout completion data for the active goal
+    completed_workouts_count = 0
+    enhanced_progress = 0.0
+    if active_goal:
+        # Total completed workouts for this goal
+        completed_workouts_count = (
+            db.query(WorkoutLog)
+            .filter(WorkoutLog.user_id == current_user.id)
+            .filter(WorkoutLog.goal_id == active_goal.id)
+            .count()
+        )
+        
+        # Get current week workout data for enhanced progress calculation
+        current_week = active_goal.current_week or 1
+        
+        # Count total workouts scheduled for current week
+        total_workouts_current_week = (
+            db.query(Workout)
+            .join(Workout.training_plan)
+            .filter(Workout.week_number == current_week)
+            .filter(Workout.training_plan.has(goal_id=active_goal.id))
+            .count()
+        )
+        
+        # Count completed workouts for current week
+        completed_workouts_current_week = (
+            db.query(WorkoutLog)
+            .join(WorkoutLog.workout)
+            .filter(WorkoutLog.user_id == current_user.id)
+            .filter(WorkoutLog.goal_id == active_goal.id)
+            .filter(Workout.week_number == current_week)
+            .count()
+        )
+        
+        # Calculate enhanced progress
+        enhanced_progress = active_goal.calculate_enhanced_progress(
+            completed_workouts_current_week, 
+            total_workouts_current_week,
+            completed_workouts_count
+        )
+    
     # Get all user goals to show completed ones
     all_goals = goal_repository.get_by_user(db, user_id=current_user.id)
     
@@ -147,6 +244,8 @@ def get_dashboard_data(
             "email": current_user.email
         },
         "active_goal": Goal.model_validate(active_goal) if active_goal else None,
+        "completed_workouts_count": completed_workouts_count,
+        "enhanced_progress": enhanced_progress,
         "completed_goals": [Goal.model_validate(goal) for goal in completed_goals],
         "total_goals": len(all_goals),
         "is_new_user": is_new_user,

@@ -28,7 +28,10 @@ class ClaudeTrainingGenerator:
         if not settings.ANTHROPIC_API_KEY:
             raise ValueError("ANTHROPIC_API_KEY not configured")
         
-        self.client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
+        self.client = anthropic.Anthropic(
+            api_key=settings.ANTHROPIC_API_KEY,
+            timeout=30.0  # 30 second timeout
+        )
     
     def create_training_plan(self, db: Session, goal: Goal, user: User) -> TrainingPlan:
         """Create an AI-generated training plan using Claude."""
@@ -79,25 +82,65 @@ class ClaudeTrainingGenerator:
     def _generate_plan_with_claude(self, goal: Goal, user: User, total_weeks: int) -> Dict[str, Any]:
         """Use Claude to generate the high-level training plan structure."""
         
-        prompt = f"""You are an expert athletic training coach. Create a training plan for:
+        # Calculate age from birth date if available
+        age_info = ""
+        if hasattr(goal, 'birth_date') and goal.birth_date:
+            from datetime import date
+            age = date.today().year - goal.birth_date.year
+            age_info = f"- Age: {age} years old"
+        
+        # Format medical conditions info
+        medical_info = ""
+        if hasattr(goal, 'medical_conditions') and goal.medical_conditions:
+            medical_info = f"- Medical Conditions/Injuries: {goal.medical_conditions}"
+        
+        # Format training experience
+        experience_info = ""
+        if hasattr(goal, 'training_experience') and goal.training_experience:
+            experience_info = f"- Training Experience: {goal.training_experience}"
+        
+        # Format current weight
+        weight_info = ""
+        if hasattr(goal, 'current_weight_lbs') and goal.current_weight_lbs:
+            weight_info = f"- Current Weight: {goal.current_weight_lbs} lbs"
+        
+        prompt = f"""You are an expert athletic training coach and exercise physiologist. Create a personalized training plan for this athlete:
 
 ATHLETE PROFILE:
 - Goal: {goal.title}
 - Goal Type: {goal.goal_type.value}
+- Goal Description: {goal.description or 'None provided'}
 - Event Date: {goal.event_date or 'No specific date'}
 - Training Duration: {total_weeks} weeks
-- Goal Description: {goal.description or 'None provided'}
+{age_info}
+{weight_info}
+{experience_info}
+{medical_info}
 
-REQUIREMENTS:
-1. Create a realistic, progressive training plan
-2. Include appropriate periodization (base, build, peak, taper phases)
-3. Determine weekly session counts for different activities
-4. Ensure the plan scales properly to the event date
+CURRENT FITNESS ASSESSMENT:
+{goal.current_fitness_assessment or 'Not provided'}
+
+TRAINING PREFERENCES:
+- Workouts per week: {getattr(goal, 'workouts_per_week', 4)}
+- Preferred workout duration: {getattr(goal, 'time_per_workout_minutes', 45)} minutes
+
+SAFETY AND PERSONALIZATION REQUIREMENTS:
+1. Consider the athlete's age for appropriate training intensities and recovery
+2. Account for any medical conditions or injuries in workout design
+3. Scale difficulty based on training experience level
+4. Create progressive, achievable goals that match their current fitness
+5. Include proper warm-up, cool-down, and recovery protocols
+
+PLAN STRUCTURE REQUIREMENTS:
+1. Create realistic, evidence-based periodization (base, build, peak, taper phases)
+2. Determine appropriate weekly session counts for different activities
+3. Ensure the plan scales properly to the event date and available time
+4. Include injury prevention strategies appropriate for the goal type
 
 Please respond with a JSON object containing:
 {{
     "name": "Training plan name",
-    "description": "Brief description of the plan approach",
+    "description": "Brief description of the plan approach and key adaptations",
     "base_weeks": number_of_base_training_weeks,
     "build_weeks": number_of_build_training_weeks, 
     "peak_weeks": number_of_peak_training_weeks,
@@ -106,12 +149,13 @@ Please respond with a JSON object containing:
     "weekly_bike_sessions": sessions_per_week_or_0,
     "weekly_run_sessions": sessions_per_week_or_0,
     "weekly_strength_sessions": sessions_per_week,
-    "training_philosophy": "Brief explanation of the approach"
+    "training_philosophy": "Detailed explanation of the coaching approach, key adaptations for this athlete, and safety considerations"
 }}
 
-Focus on realistic, achievable progression. For triathlon, include swim/bike/run. For running goals, focus on running with cross-training. Scale appropriately to the time available."""
+Focus on creating a safe, personalized, and achievable plan. Consider the athlete's specific circumstances, limitations, and goals."""
 
         try:
+            print(f"Calling Claude API for plan generation...")
             response = self.client.messages.create(
                 model="claude-3-5-sonnet-20241022",
                 max_tokens=1000,
@@ -119,6 +163,7 @@ Focus on realistic, achievable progression. For triathlon, include swim/bike/run
                     {"role": "user", "content": prompt}
                 ]
             )
+            print(f"Claude API call completed successfully")
             
             # Extract JSON from Claude's response
             response_text = response.content[0].text

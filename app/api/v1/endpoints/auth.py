@@ -11,7 +11,7 @@ from app.core.security.auth import create_access_token, ACCESS_TOKEN_EXPIRE_MINU
 from app.core.security.deps import get_current_user
 from app.db.database import get_db
 from app.repositories.user import user_repository
-from app.schemas.user import Token, User, UserCreate, UserLogin
+from app.schemas.user import Token, User, UserCreate, UserLogin, UserProfile
 
 router = APIRouter()
 
@@ -86,6 +86,21 @@ def read_users_me(
     Get current user profile.
     """
     return current_user
+
+
+@router.put("/profile", response_model=User)
+def update_user_profile(
+    *,
+    db: Session = Depends(get_db),
+    profile_in: UserProfile,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Update current user's profile.
+    """
+    # Update user profile with the provided fields
+    user = user_repository.update(db, db_obj=current_user, obj_in=profile_in)
+    return user
 
 
 @router.post("/logout")

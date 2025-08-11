@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     
     # AI/LLM Configuration
     ANTHROPIC_API_KEY: Optional[str] = None
+    USE_MOCK_CLAUDE: bool = False  # Set to True to use mock Claude service for testing
     
     # Azure Configuration
     AZURE_SQL_SERVER: Optional[str] = None

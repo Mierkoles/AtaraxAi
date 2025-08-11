@@ -15,7 +15,10 @@ class UserBase(BaseModel):
     birth_date: Optional[date] = None
     height_inches: Optional[float] = None
     weight_lbs: Optional[float] = None
+    bmi_known: Optional[float] = None
+    body_type: Optional[str] = None
     fitness_level: Optional[str] = None
+    medical_conditions: Optional[str] = None
     is_active: Optional[bool] = True
 
 
@@ -47,7 +50,10 @@ class UserProfile(BaseModel):
     birth_date: Optional[date] = None
     height_inches: Optional[float] = None
     weight_lbs: Optional[float] = None
+    bmi_known: Optional[float] = None
+    body_type: Optional[str] = None
     fitness_level: Optional[str] = None
+    medical_conditions: Optional[str] = None
 
 
 # Properties to return via API

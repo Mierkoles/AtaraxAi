@@ -108,6 +108,17 @@ class WorkoutLogUpdate(WorkoutLogBase):
     pass
 
 
+class WorkoutCompletionRequest(BaseModel):
+    """Schema for workout completion with user feedback."""
+    workout_id: int
+    perceived_exertion: Optional[int] = None  # 1-10 scale
+    energy_level: Optional[int] = None  # 1-10 scale  
+    enjoyment_level: Optional[int] = None  # 1-10 scale
+    actual_duration_minutes: Optional[int] = None
+    weather_conditions: Optional[str] = None
+    notes: Optional[str] = None
+
+
 class WorkoutLog(WorkoutLogBase):
     """Schema for returning workout log data."""
     id: int

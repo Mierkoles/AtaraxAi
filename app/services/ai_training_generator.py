@@ -201,6 +201,8 @@ class WorkoutGenerator:
             weekly_workouts = self.generate_week(week, phase, current_date, params)
             
             for workout_data in weekly_workouts:
+                # Ensure week_number is set correctly
+                workout_data['week_number'] = week
                 workout = Workout(
                     training_plan_id=plan.id,
                     **workout_data
@@ -297,7 +299,7 @@ class TriathlonWorkoutGenerator(WorkoutGenerator):
             "workout_type": WorkoutType.REST,
             "intensity": WorkoutIntensity.RECOVERY,
             "phase": TrainingPhase.BASE,
-            "week_number": 1,
+            "week_number": 1,  # This will be set correctly by the calling function
             "day_of_week": day,
             "scheduled_date": date,
             "duration_minutes": 0,
